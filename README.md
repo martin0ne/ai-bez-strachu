@@ -2,15 +2,19 @@
 
 > System edukacji AI zbudowany na badaniach: poziomy = **kompetencje** (triage wykonaniowy), wiek = **opakowanie** (tempo, przykłady, wsparcie). Trzy poziomy: **START → HORIZON → FLOW**.
 
-**Start:** wypełnij [TRIAGE-v2](./TRIAGE-v2.md) (10–15 min, zadania wykonawcze) → dostaniesz rekomendację poziomu → wejdź w swój folder.
+**Start:** wypełnij [TRIAGE-v2](./TRIAGE-v2.md) (10–15 min, zadania wykonawcze) → dostaniesz rekomendację poziomu → wejdź w swój folder i skopiuj instrukcję swojego asystenta.
 
 ## Poziomy
 
-| Poziom | Dla kogo | Co osiągniesz |
-|---|---|---|
-| **[START](./start/)** | AI = zero lub jedna próba | pierwsze bezpieczne użycie: konto, pytanie, mail, nawyk |
-| **[HORIZON](./horizon/)** | używam AI, ale powierzchownie | świadome użycie: formuła, weryfikacja, granice |
-| **[FLOW](./flow/)** | projektuję własne workflow | powtarzalne procesy + transfer na firmę/pracę |
+| Poziom | Dla kogo | Co osiągniesz | Instrukcja asystenta |
+|---|---|---|---|
+| **[START](./start/)** | AI = zero lub jedna próba | pierwsze bezpieczne użycie: konto, pytanie, mail, nawyk | [asystent-start](./start/asystent-start.md) |
+| **[HORIZON](./horizon/)** | używam AI, ale powierzchownie | świadome użycie: formuła, weryfikacja, granice | [asystent-horizon](./horizon/asystent-horizon.md) |
+| **[FLOW](./flow/)** | projektuję własne workflow | powtarzalne procesy + transfer na firmę/pracę | [asystent-flow](./flow/asystent-flow.md) |
+
+## Instrukcja asystenta — jak działa
+
+Każdy poziom ma **własny wariant** instrukcji (MD do skopiowania w czat). Warianty budowane są ze **wspólnej bazy** ([asystent-szablon-baza](./asystent-szablon-baza.md)): rdzeń (język, uczciwość, 3-check, czerwona lista, jakość, JEŚLI→TO) + warstwa poziomu (tryb współpracy, typ zadań, feedback) + opcjonalna warstwa grupy (ton i przykłady per kohorta). Zmiana zasad trafia do bazy → wszystkie warianty spójne.
 
 ## Struktura
 
@@ -18,9 +22,10 @@
 TRIAGE-v2.md               ← zacznij tutaj: 3 pytania + 2 zadania → poziom
 FILOZOFIA-EDUKACJI.md      ← 5 zasad + progresja (dlaczego tak uczymy)
 SYSTEM-EDU.md              ← architektura: macierz grup × poziomy, pula modułów
-start/                     ← START: pełny kurs (scenariusze, ściąga, instrukcja asystenta)
-horizon/                   ← HORIZON: sylabus, audyt startowy, instrukcja asystenta
-flow/                      ← FLOW: instrukcja asystenta (workflow, dokumentacja)
+asystent-szablon-baza.md   ← wspólne DNA wariantów asystenta
+start/                     ← START: scenariusze, plan, ściąga-A4, asystent-start
+horizon/                   ← HORIZON: sylabus, audyt T0, asystent-horizon
+flow/                      ← FLOW: asystent-flow (workflow, dokumentacja)
 wspolne/                   ← 3-check · czerwona lista · JEŚLI-TO (dla wszystkich)
 strona/                    ← strona onboardingowa + kreator
 ```
