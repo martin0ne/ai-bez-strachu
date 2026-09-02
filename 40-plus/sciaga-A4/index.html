@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ściągawka — AI bez strachu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design-system.css">
+<style>
+  :root {
+    --ink: #2f3437; --ink-strong: #111111; --muted: #787774;
+    --canvas: #fbfbfa; --white: #ffffff; --line: #eaeaea;
+    --accent: #9f2f2d; --accent-soft: #fdebec;
+    --green-ink: #346538; --green-soft: #edf3ec;
+    --sans: 'Geist', 'Helvetica Neue', -apple-system, system-ui, sans-serif;
+    --serif: 'Newsreader', Georgia, serif;
+    --mono: 'Geist Mono', 'SF Mono', Menlo, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans); background: var(--white); color: var(--ink);
+    line-height: 1.55; font-size: 15px; -webkit-font-smoothing: antialiased;
+  }
+  /* ====== ARKUSZ A4 (dwie strony: przód/tył) ====== */
+  .sheet {
+    width: 210mm; min-height: 297mm; margin: 0 auto;
+    padding: 16mm 15mm 12mm;
+    background: var(--white);
+  }
+  .sheet + .sheet { border-top: 1px dashed var(--line); }
+  @media screen {
+    body { background: var(--canvas); padding: 32px 0; }
+    .sheet { box-shadow: 0 1px 24px rgba(0,0,0,.07); margin-bottom: 28px; }
+  }
+  @media print {
+    body { background: var(--white); padding: 0; }
+    .sheet { box-shadow: none; margin: 0; width: auto; min-height: auto; padding: 14mm 13mm; }
+    .sheet + .sheet { border-top: none; page-break-before: always; }
+    .no-print { display: none !important; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  /* ====== NAGŁÓWEK ====== */
+  .head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--ink-strong); padding-bottom: 8px; margin-bottom: 14px; }
+  .head h1 { font-family: var(--serif); font-weight: 600; font-size: 26px; color: var(--ink-strong); letter-spacing: -0.01em; }
+  .head .tag { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+
+  /* ====== KICKER / SEKCJE ====== */
+  .kicker { font-family: var(--mono); font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 16px 0 8px; display: flex; align-items: center; gap: 8px; }
+  .kicker .n { display: inline-block; width: 16px; height: 16px; line-height: 16px; text-align: center; background: var(--ink-strong); color: #fff; border-radius: 3px; font-size: 9.5px; }
+  .kicker.red .n { background: var(--accent); }
+  .kicker.green .n { background: var(--green-ink); }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .block { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .block h3 { font-family: var(--serif); font-size: 14.5px; font-weight: 600; color: var(--ink-strong); margin-bottom: 4px; }
+  .block .sub { font-size: 11.5px; color: var(--muted); margin-bottom: 6px; }
+  .block p, .block li { font-size: 12px; }
+
+  /* formuła */
+  .formula { border: 1px solid var(--line); border-left: 3px solid var(--ink-strong); border-radius: 8px; padding: 10px 12px; background: var(--canvas); }
+  .formula .row { display: flex; gap: 8px; align-items: baseline; padding: 3px 0; }
+  .formula .lbl { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-strong); min-width: 74px; }
+  .formula .ex { font-size: 12px; color: var(--ink); }
+  .formula .ex b { color: var(--ink-strong); }
+
+  /* szablony */
+  .tpl { border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; }
+  .tpl .tname { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 3px; }
+  .tpl p { font-size: 12px; color: var(--ink); }
+  .tpl p b { color: var(--ink-strong); }
+
+  /* iteracja */
+  .iter { display: flex; gap: 6px; flex-wrap: wrap; }
+  .iter span { font-family: var(--mono); font-size: 11px; border: 1px solid var(--line); border-radius: 5px; padding: 4px 9px; background: var(--canvas); }
+
+  /* czerwona lista */
+  .red { background: var(--accent-soft); border: 1px solid #f3d4d3; border-radius: 8px; padding: 10px 12px; }
+  .red h3 { font-family: var(--serif); font-size: 14.5px; font-weight: 600; color: var(--accent); margin-bottom: 5px; }
+  .red ul { list-style: none; }
+  .red li { font-size: 12px; padding: 2.5px 0 2.5px 16px; position: relative; }
+  .red li::before { content: "×"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .red .swap { margin-top: 6px; font-size: 11.5px; background: var(--white); border-radius: 6px; padding: 6px 9px; border: 1px solid #f3d4d3; }
+  .red .swap b { color: var(--accent); }
+
+  /* człowiek > AI */
+  .human { background: var(--green-soft); border: 1px solid #cfe3cd; border-radius: 8px; padding: 10px 12px; }
+  .human h3 { font-family: var(--serif); font-size: 14.5px; font-weight: 600; color: var(--green-ink); margin-bottom: 5px; }
+  .human ul { list-style: none; }
+  .human li { font-size: 12px; padding: 2.5px 0 2.5px 16px; position: relative; }
+  .human li::before { content: "→"; position: absolute; left: 0; color: var(--green-ink); font-weight: 700; }
+  .human .rule { margin-top: 6px; font-size: 11.5px; background: var(--white); border-radius: 6px; padding: 6px 9px; border: 1px solid #cfe3cd; }
+
+  /* krok po kroku: 3-check */
+  .check { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .check ol { margin-left: 16px; }
+  .check li { font-size: 12px; padding: 2px 0; }
+  .check li b { color: var(--ink-strong); }
+  .check .note { font-size: 11px; color: var(--muted); margin-top: 5px; }
+
+  /* JEŚLI-TO */
+  .ift { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .ift .line { display: flex; gap: 6px; align-items: baseline; padding: 3px 0; font-size: 12px; }
+  .ift .if { font-family: var(--mono); font-size: 10px; font-weight: 500; color: var(--green-ink); background: var(--green-soft); border-radius: 4px; padding: 2px 6px; white-space: nowrap; }
+  .ift .to { font-family: var(--mono); font-size: 10px; font-weight: 500; color: var(--blue-ink); background: var(--blue-soft); border-radius: 4px; padding: 2px 6px; white-space: nowrap; }
+  .ift .blank { color: var(--muted); border-bottom: 1px solid var(--line); flex: 1; min-height: 15px; }
+
+  .foot { margin-top: 14px; padding-top: 8px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+
+  @media (max-width: 760px) {
+    .sheet { width: auto; min-height: auto; padding: 20px 16px; }
+    .grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="no-print" style="max-width:210mm;margin:0 auto 18px;padding:0 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+  <span style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);">Kurs „AI bez strachu" · arkusz 2 strony · A4</span>
+  <button onclick="window.print()" style="background:#111;color:#fff;border:none;border-radius:6px;padding:10px 22px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;">Drukuj</button>
+</div>
+
+<!-- ==================== STRONA 1: NARZĘDZIE ==================== -->
+<section class="sheet">
+  <div class="head">
+    <h1>Ściągawka: AI bez strachu</h1>
+    <span class="tag">Strona 1 / 2 · narzędzie</span>
+  </div>
+
+  <div class="kicker"><span class="n">1</span>Formuła dobrego pytania — KIM → CO → FORMA</div>
+  <div class="formula">
+    <div class="row"><span class="lbl">KIM JESTEŚ</span><span class="ex">„Jesteś <b>asystentem do korespondencji</b> / doradcą / kucharzem”</span></div>
+    <div class="row"><span class="lbl">CO ZROBIĆ</span><span class="ex">„<b>Napisz mail</b> do przychodni. Chcę umówić wizytę kontrolną w przyszłym tygodniu”</span></div>
+    <div class="row"><span class="lbl">DLA KOGO</span><span class="ex">„Jestem <b>pacjentem 60+”, „to do szefa”</b>, „nie znam się na komputerach”</span></div>
+    <div class="row"><span class="lbl">FORMA</span><span class="ex">„<b>Max 5 zdań</b>, po polsku prosto, lista punktów”</span></div>
+  </div>
+
+  <div class="kicker"><span class="n">2</span>Cztery szablony do życia</div>
+  <div class="grid2">
+    <div class="tpl"><div class="tname">A · Mail / wiadomość</div><p>„Napisz <b>[mail/SMS]</b> do <b>[kogo]</b>. Cel: <b>[co chcę]</b>. Ton: <b>[uprzejmy/stanowczy]</b>. Max <b>[X]</b> zdań.”</p></div>
+    <div class="tpl"><div class="tname">B · Streszczenie</div><p>„Streść poniższy tekst <b>w 5 punktach</b>, prostym językiem, bez żargonu: <b>[wklej tekst]</b>”</p></div>
+    <div class="tpl"><div class="tname">C · Plan / lista</div><p>„Ułóż plan <b>[czego]</b> na <b>[kiedy]</b>. Ograniczenie: <b>[czas / pieniądze / zdrowie]</b>. Lista do odhaczenia.”</p></div>
+    <div class="tpl"><div class="tname">D · Wyjaśnienie</div><p>„Wytłumacz <b>[pojęcie]</b> jak 12-latkowi. Potem <b>1 przykład z życia</b>. Bez angielskich skrótów.”</p></div>
+  </div>
+
+  <div class="kicker"><span class="n">3</span>Nie zadowolił Cię wynik? Popraw go — nie zaczynaj od nowa</div>
+  <div class="iter">
+    <span>„Skróć o połowę”</span>
+    <span>„Napisz uprzejmiej”</span>
+    <span>„Wytłumacz jak 10-latkowi”</span>
+    <span>„Max 3 zdania”</span>
+    <span>„Dodaj przykład”</span>
+    <span>„Inny ton: stanowczy”</span>
+  </div>
+
+  <div class="kicker"><span class="n">4</span>Jak sprawdzić odpowiedź AI — 3 szybkie checki</div>
+  <div class="check">
+    <ol>
+      <li><b>Źródło:</b> czy to, co AI podaje, da się potwierdzić u źródła (strona urzędu, lekarz, bank)?</li>
+      <li><b>Liczby i daty:</b> AI najczęściej myli się w detalach — sprawdź każdą, która ma znaczenie.</li>
+      <li><b>Logika:</b> czy wniosek ma sens? Czy z „prawie tak” nie zrobiono „na pewno tak”?</li>
+    </ol>
+    <div class="note">Cytowanie przez AI nie jest weryfikacją — link podany przez AI też trzeba otworzyć. [M41, M42]</div>
+  </div>
+
+  <div class="kicker green"><span class="n">5</span>Kiedy człowiek jest ważniejszy niż AI</div>
+  <div class="human">
+    <ul>
+      <li><b>Zdrowie:</b> objawy, leki, dawki — lekarz, farmaceuta; AI tylko do przygotowania pytań</li>
+      <li><b>Pieniądze:</b> umowy, inwestycje, „pewne zyski” — doradca, bank (KNF: lista ostrzeżeń)</li>
+      <li><b>Prawo i urząd:</b> terminy i procedury — gov.pl, infolinia urzędu; AI tylko do streszczenia</li>
+      <li><b>Emocje bliskich:</b> trudne rozmowy — AI nie zastąpi człowieka</li>
+    </ul>
+    <div class="rule"><b>Zasada:</b> AI przygotowuje i wyjaśnia — <b>decyzję podejmuje człowiek</b>. [M30, M33]</div>
+  </div>
+
+  <div class="foot"><span>Kurs „AI bez strachu” · MJ.OLDAK</span><span>Pełne źródła: materiały merytoryczne kursu</span></div>
+</section>
+
+<!-- ==================== STRONA 2: BEZPIECZEŃSTWO + NAWYK ==================== -->
+<section class="sheet">
+  <div class="head">
+    <h1>Ściągawka: AI bez strachu</h1>
+    <span class="tag">Strona 2 / 2 · bezpieczeństwo + nawyk</span>
+  </div>
+
+  <div class="kicker red"><span class="n">6</span>Czerwona lista — nigdy nie wklejaj do AI</div>
+  <div class="red">
+    <ul>
+      <li>PESEL, numer dowodu, paszport</li>
+      <li>Hasła, kody SMS, PIN-y, dane karty</li>
+      <li>Dokumenty medyczne z imieniem i diagnozą</li>
+      <li>Dane innych osób (rodzina, sąsiedzi, klienci)</li>
+      <li>Zdjęcia dokumentów tożsamości</li>
+      <li>Sekrety rodzinne i finansowe</li>
+    </ul>
+    <div class="swap"><b>Zamiast danych:</b> „kobieta ok. 70 lat”, „pan Kowalski”, „klient” — AI odpowiedzi też dobrze. [M18, M19]</div>
+  </div>
+
+  <div class="kicker red"><span class="n">7</span>„To bank / to syn — słyszę jego głos”: protokół przerwania</div>
+  <div class="red">
+    <ul>
+      <li><b>Zero pośpiechu:</b> oszust liczy na stres — decyzję podejmuj po zakończeniu rozmowy</li>
+      <li><b>Odłóż słuchawkę</b> i zadzwoń sam na <b>zapisany numer</b> (nie z tej rozmowy!)</li>
+      <li><b>Pytanie kontrolne</b>, które zna tylko wasza rodzina</li>
+      <li><b>Nigdy</b> kody SMS, hasła, BLIK, „przelew pomocowy” — bank tego nie prosi</li>
+      <li>Głos i wideo mogą być fałszywe (deepfake) — treść rozmowy nie jest dowodem tożsamości</li>
+    </ul>
+    <div class="swap"><b>Zasada:</b> „zakończ, sprawdź z drugiej strony, wróć”. [M47, M48]</div>
+  </div>
+
+  <div class="kicker"><span class="n">8</span>Zanim coś tam wkleisz — jedno pytanie</div>
+  <div class="block" style="border-left:3px solid var(--ink-strong);">
+    <p style="font-size:13px;">„Wkleiłbym to obcej osobie <b>w e-mailu</b>?”</p>
+    <p style="font-size:11.5px;color:var(--muted);margin-top:3px;">Jeśli nie — nie wklejaj do AI. Wystarczy to jedno pytanie zamiast pamiętać listę. [M19]</p>
+  </div>
+
+  <div class="kicker green"><span class="n">9</span>Mój plan na nawyk — JEŚLI … TO</div>
+  <div class="ift">
+    <div class="line"><span class="if">JEŚLI</span><span class="blank">dostanę długi mail / pismo do przeczytania</span><span class="to">TO</span><span class="blank">wklejam do AI i proszę o 5 punktów</span></div>
+    <div class="line"><span class="if">JEŚLI</span><span class="blank">muszę napisać trudną wiadomość</span><span class="to">TO</span><span class="blank">szablon A — mail w moim stylu</span></div>
+    <div class="line"><span class="if">JEŚLI</span><span class="blank">czegoś nie rozumiem</span><span class="to">TO</span><span class="blank">szablon D — wyjaśnienie jak 12-latkowi</span></div>
+    <div class="line"><span class="if">JEŚLI</span><span class="blank">______________________________</span><span class="to">TO</span><span class="blank">______________________________</span></div>
+    <div class="line"><span class="if">JEŚLI</span><span class="blank">______________________________</span><span class="to">TO</span><span class="blank">______________________________</span></div>
+  </div>
+
+  <div class="grid2" style="margin-top:12px;">
+    <div class="block">
+      <h3>Moi sprawdzacze</h3>
+      <p class="sub">osoby, które potwierdzą ważne sprawy</p>
+      <p>Zdrowie: ____________ · Pieniądze: ____________ · Urząd: ____________</p>
+    </div>
+    <div class="block">
+      <h3>Moje pierwsze 3 pytania</h3>
+      <p class="sub">na dziś — nie musisz być oryginalny</p>
+      <p>1. ________________________<br>2. ________________________<br>3. ________________________</p>
+    </div>
+  </div>
+
+  <div class="kicker green"><span class="n">10</span>Nie wyszło? Nic strasznego</div>
+  <div class="block">
+    <p style="font-size:12.5px;">AI się nie obrazi. Jutro znowu. Zapisuj w notesie: co zadziałało, co Cię zaskoczyło — to Twój materiał na kolejną sesję.</p>
+  </div>
+
+  <div class="foot"><span>Kurs „AI bez strachu” · MJ.OLDAK</span><span>Pełne źródła: materiały merytoryczne kursu</span></div>
+</section>
+
+</body>
+</html>

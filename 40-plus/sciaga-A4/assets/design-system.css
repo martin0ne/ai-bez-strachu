@@ -1,0 +1,172 @@
+/* ============================================================
+   DESIGN SYSTEM — AI bez strachu
+   Źródło prawdy tokenów. Ładować PO stylach strony (nadpisuje).
+   Baza: DR "Przewodnik Anty-AI" (research/dr-report-design.md)
+   + taste-skill minimalist-skill + redesign-skill.
+   Odbiorca: 40+, editorial minimalism, warm neutrals.
+   ============================================================ */
+
+/* ---------- 1. KOLORY — OKLCH, hue ~70 (warm) ----------
+   Percepcyjnie jednolita przestrzeń: jasność L wygląda tak samo
+   jasno niezależnie od odcienia. Fallbacki hex dla starszych
+   przeglądarek (deklaracja wcześniejsza). */
+:root {
+  /* powierzchnie */
+  --canvas: #fbfbfa;
+  --canvas: oklch(0.98 0.005 70);
+  --card: #f9f9f8;
+  --card: oklch(0.972 0.004 70);
+  --white: #ffffff;
+  --white: oklch(1 0.002 70);
+  --line: #eaeaea;
+  --line: oklch(0.925 0.005 70);
+
+  /* tekst — złamana grafitowa czerń (nie #000; APCA Lc ~90 na canvas) */
+  --ink: #2f3437;
+  --ink: oklch(0.27 0.012 220);
+  --ink-strong: #111111;
+  --ink-strong: oklch(0.18 0.01 220);
+  --muted: #787774;
+  --muted: oklch(0.55 0.008 70);
+
+  /* akcenty — pastele, TYLKO semantycznie, chroma niska */
+  --accent: #9f2f2d;          /* pale red text — błędy/czerwona lista */
+  --accent: oklch(0.45 0.12 25);
+  --accent-soft: #fdebec;
+  --accent-soft: oklch(0.96 0.02 25);
+  --green-ink: #346538;
+  --green-ink: oklch(0.45 0.09 145);
+  --green-soft: #edf3ec;
+  --green-soft: oklch(0.955 0.02 145);
+  --blue-ink: #1f6c9f;
+  --blue-ink: oklch(0.5 0.09 240);
+  --blue-soft: #e1f3fe;
+  --blue-soft: oklch(0.96 0.02 240);
+
+  /* ---------- 2. TYPOGRAFIA ----------
+     Floor 16px (DIN 1450 / W3C dla 40+), interlinia 1.55-1.65 body,
+     1.05-1.2 nagłówki, tracking ujemny dla display, dodatni dla caps. */
+  --sans: 'Geist', 'Helvetica Neue', -apple-system, system-ui, sans-serif;
+  --serif: 'Newsreader', Georgia, serif;
+  --mono: 'Geist Mono', 'SF Mono', Menlo, monospace;
+
+  --text-body: clamp(1rem, 0.95rem + 0.23vw, 1.125rem); /* 16→18px floor */
+  --text-lead: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+  --lh-body: 1.62;
+  --lh-heading: 1.08;
+  --tracking-display: -0.025em;
+  --tracking-caps: 0.06em;   /* all-caps labele — rozluźnienie */
+
+  /* szwajcarskie features: czytelne 'l' (cv05), tabularne cyfry (tnum) */
+  --font-swiss: 'cv05' 1, 'ss01' 1, 'liga' 1, 'calt' 1;
+
+  /* ---------- 3. MOTION — snappy, 150-250ms, bez liniowych ----------
+     Krzywe wg praktyki E. Kowalskiego (design-motion-principles). */
+  --ease-snappy: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-micro: 150ms;
+  --dur-macro: 250ms;
+  --dur-enter: 500ms;
+
+  /* ---------- 4. PRZESTRZEŃ ----------
+     Prawo bliskości (Krehel): inter-group ≥ 2× intra-group. */
+  --gap-intra: 12px;         /* elementy w grupie */
+  --gap-inter: 96px;         /* sekcje (desktop; mobile 64px) */
+  --measure: 66ch;           /* max szerokość czytania */
+}
+
+/* ---------- 5. GLOBALNE NADPISANIA CZYTELNOŚCI ---------- */
+body {
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+  font-feature-settings: var(--font-swiss);
+}
+p, li, dd, figcaption {
+  max-width: var(--measure);
+}
+h1, h2, h3 {
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-display);
+  text-wrap: balance;
+}
+
+/* cyfry w metrykach nie skaczą szerokością */
+.metric, .stat-card .metric, .step-count, kbd {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 6. FOCUS + SELEKCJA (brak focus ringa = fingerprint) */
+:focus-visible {
+  outline: 2px solid var(--ink-strong);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+::selection {
+  background: var(--ink-strong);
+  color: var(--canvas);
+}
+
+/* ---------- 7. TOUCH TARGETS — min 44×44px dla 40+ ---------- */
+.back, .cta, .btn, .quiz-opt, .redrow, .choice {
+  min-height: 44px;
+}
+
+/* ---------- 8. REDUCED MOTION — etyka + vertigo A11y ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- 9. FILM GRAIN — feTurbulence, sub-percepcyjny ----------
+   Overlay: opacity 0.06 (jasny motyw), pointer-events none. */
+.texture-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.055;
+  filter: url(#editorialGrain);
+}
+
+/* ---------- 10. MIKROINTERAKCJE — domyślne dla przycisków ---------- */
+.btn, .cta, .chip, .choice, .quiz-opt, .redrow, .back {
+  transition:
+    background-color var(--dur-micro) var(--ease-snappy),
+    border-color var(--dur-micro) var(--ease-snappy),
+    box-shadow var(--dur-micro) var(--ease-snappy),
+    transform var(--dur-micro) var(--ease-snappy);
+}
+.btn:active, .cta:active, .chip:active, .back:active {
+  transform: scale(0.97);
+}
+.choice:active, .quiz-opt:active, .redrow:active {
+  transform: scale(0.99);
+}
+
+/* ---------- 11. ENTRY ANIMACJE — sprężyste, nie "fade-up 800ms" ---------- */
+.screen-wrap.active, .appear {
+  animation: enter var(--dur-enter) var(--ease-snappy);
+}
+@keyframes enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- 12. RESPONSYWNE PRÓŻNIE ----------
+   Makro-odstępy sekcji: 96-160px desktop / 64px mobile. */
+@media (min-width: 901px) {
+  section { padding-top: var(--gap-inter); padding-bottom: var(--gap-inter); }
+}
+@media (max-width: 900px) {
+  :root { --gap-inter: 64px; }
+}
+
+/* ---------- PRINT (ściągawki) ---------- */
+@media print {
+  .texture-overlay, .topbar, .actions, nav { display: none !important; }
+  body { background: #fff; }
+}
