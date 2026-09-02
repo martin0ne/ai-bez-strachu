@@ -38,10 +38,10 @@ Utwórz **kategorie** i kanały (dokładnie te nazwy — spójne z INFRA i mater
 - `#sesja-4-bezpieczenstwo-i-nawyk`
   *(nazwy kanałów = kolejność z PLAN-KURSU; po każdej sesji pinujesz materiały z Drive)*
 
-**Kategoria: 🔥 PRACA CODZIENNA**
+**Kategoria: 🔄 PRAKTYKA (między sesjami — tu żyje kurs na co dzień)**
 - `#dziennik` — codziennie 1 zdanie „co dziś zrobiłem z AI" (mikro-zadania tu wracają)
 - `#pokaz-wynik` — peer review: prompt + wynik; każdy komentuje 2 obce
-- `#pytania-merytoryczne` — wszystko o AI, kursie i zadaniach
+- `#pytania` — wszystko o AI, kursie i zadaniach (merytoryka)
 
 **Kategoria: 🛠 SERWIS**
 - `#pomoc-techniczna` — konto, Zoom, dźwięk (nie merytoryka!)
