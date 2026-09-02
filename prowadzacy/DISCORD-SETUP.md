@@ -48,6 +48,12 @@ Utwórz **kategorie** i kanały (dokładnie te nazwy — spójne z INFRA i mater
 - `#feedback` — ZEEBOT: sukces / problem / idea (patrz Krok 5)
 - `#oflagowane-do-marcina` — tylko Ty widzisz sprawy eskalowane
 
+**Kategoria: 🎙 NA GŁOS (spotkania i newsy)**
+- `#newsy-ai` — krótkie newsy AI po polsku (prowadzący 2–3×/tydz, każdy z 1 zdaniem „co to znaczy dla Ciebie"); komentarze → #pytania
+- 🔊 `Sala główna` — spotkania live (office hours, follow-up D14, breakouty 1:1)
+- 🔊 `Kącik-pilota` — kameralny pokój: ktoś utknął → „wbij na głos", 1:1 bez umawiania
+- 🔊 `Cisza-praca` — pokój „uczymy się razem na wyciszeniu": wchodzisz, pracujesz ze swoim zadaniem, nikt nie rozmawia (body doubling — dobre dla nawyku)
+
 ## Krok 4 — Pin #start-tutaj (treść gotowa do wklejenia)
 
 ```
