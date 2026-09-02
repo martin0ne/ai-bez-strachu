@@ -1,0 +1,19 @@
+WITAJ W OSNOWA EDU — GRUPA 1
+
+ZASADY (krótko):
+1. Czerwona lista obowiązuje też tutaj — żadnych danych osobowych w wątkach
+   (PESEL, hasła, dane innych, dokumenty zdrowotne). Pytaj „wkleiłbym to obcej
+   osobie w mailu?" — jeśli nie, nie wklejaj.
+2. Możesz używać pseudonimu. Decyzja Twoja.
+3. Pytania merytoryczne → kanały sesji / #pytania
+   Technika (konto, dźwięk) → #pomoc-techniczna
+   Feedback → #feedback
+4. Każdy komentuje 2 obce wyniki w #pokaz-wynik — tak działa grupa.
+
+LINKI:
+- Biblioteka kursu (GitHub): https://github.com/martin0ne/ai-bez-strachu
+- Materiały (Google Drive): [LINK PO UTWORZENIU]
+- Ściągawka A4 (druk): https://github.com/martin0ne/ai-bez-strachu/blob/main/start/sciaga-A4/index.html
+- Instrukcja asystenta (wklej w czat): https://github.com/martin0ne/ai-bez-strachu/blob/main/start/asystent-start.md
+
+PIERWSZE ZADANIE: [wstaw wg PLAN-KURSU — mikro-zadanie 24 h]
