@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI bez strachu — nauka przez robienie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design-system.css">
+<style>
+  :root {
+    --ink: #2f3437;
+    --ink-strong: #111111;
+    --muted: #787774;
+    --canvas: #fbfbfa;
+    --card: #f9f9f8;
+    --white: #ffffff;
+    --line: #eaeaea;
+    --accent: #9f2f2d;        /* pale red text */
+    --accent-soft: #fdebec;   /* pale red bg */
+    --green-ink: #346538;
+    --green-soft: #edf3ec;
+    --blue-ink: #1f6c9f;
+    --blue-soft: #e1f3fe;
+    --yellow-ink: #956400;
+    --yellow-soft: #fbf3db;
+    --radius: 12px;
+    --sans: 'Geist', 'Helvetica Neue', -apple-system, system-ui, sans-serif;
+    --serif: 'Newsreader', Georgia, serif;
+    --mono: 'Geist Mono', 'SF Mono', Menlo, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    background: var(--canvas);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== topbar ===== */
+  .topbar { position: sticky; top: 0; z-index: 20; background: rgba(251,251,250,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .topbar-inner { max-width: 880px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; gap: 20px; }
+  .brand { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .track { flex: 1; display: flex; gap: 6px; }
+  .seg { flex: 1; height: 2px; border-radius: 1px; background: var(--line); transition: background .4s; }
+  .seg.done { background: var(--ink-strong); }
+  .step-count { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .back {
+    border: 1px solid var(--line); background: var(--white); width: 34px; height: 34px;
+    border-radius: 8px; cursor: pointer; color: var(--ink); font-size: 15px; visibility: hidden;
+    transition: border-color .15s, transform .1s;
+  }
+  .back.show { visibility: visible; }
+  .back:hover { border-color: var(--muted); }
+  .back:active { transform: scale(.96); }
+
+  /* ===== ekrany ===== */
+  .screen-wrap { max-width: 680px; margin: 0 auto; padding: 72px 24px 96px; display: none; }
+  .screen-wrap.active { display: block; animation: appear .5s cubic-bezier(0.16, 1, 0.3, 1); }
+  @keyframes appear { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+  .kicker { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+  h1 {
+    font-family: var(--serif); font-weight: 600;
+    font-size: clamp(30px, 5vw, 44px); letter-spacing: -0.02em; line-height: 1.1;
+    color: var(--ink-strong); margin-bottom: 14px; text-wrap: balance;
+  }
+  .lead { font-size: 17px; color: var(--muted); max-width: 54ch; margin-bottom: 40px; }
+
+  /* ===== karty wyboru ===== */
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .choice {
+    background: var(--white); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 24px 24px 22px; cursor: pointer; text-align: left; font-family: inherit;
+    transition: border-color .2s, box-shadow .2s, transform .15s;
+  }
+  .choice:hover { border-color: #d8d8d6; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transform: translateY(-1px); }
+  .choice.selected { border-color: var(--ink-strong); box-shadow: inset 0 0 0 1px var(--ink-strong); }
+  .choice .t { font-weight: 600; font-size: 16px; letter-spacing: -0.01em; color: var(--ink-strong); margin-bottom: 5px; }
+  .choice .d { font-size: 14px; color: var(--muted); line-height: 1.5; }
+  .choice .idx { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: .05em; display: block; margin-bottom: 12px; }
+
+  .actions { margin-top: 40px; display: flex; align-items: center; gap: 16px; }
+  .cta {
+    background: var(--ink-strong); color: #fff; border: none; border-radius: 6px;
+    padding: 14px 36px; font-size: 15px; font-weight: 600; font-family: inherit;
+    cursor: pointer; transition: background .15s, transform .1s, opacity .15s;
+  }
+  .cta:hover { background: #333333; }
+  .cta:active { transform: scale(0.98); }
+  .cta:disabled { opacity: .3; cursor: not-allowed; }
+  .hint-key { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  kbd {
+    font-family: var(--mono); font-size: 11px; border: 1px solid var(--line);
+    border-radius: 4px; background: var(--white); padding: 2px 6px; color: var(--ink);
+  }
+
+  /* ===== lekcje ===== */
+  .note {
+    background: var(--white); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 22px 26px; margin-bottom: 28px; font-size: 16px;
+  }
+  .note b { font-weight: 600; color: var(--ink-strong); }
+  .duo { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 20px 0 32px; }
+  .prompt-box {
+    background: var(--white); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 20px; font-size: 15px; position: relative;
+  }
+  .prompt-box .label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+    margin-bottom: 6px; display: block;
+  }
+  .prompt-box.bad .label { color: var(--accent); }
+  .prompt-box.good .label { color: var(--green-ink); }
+  .prompt-box.good { border-left: 2px solid var(--green-ink); }
+
+  .quiz-q { font-size: 17px; font-weight: 600; color: var(--ink-strong); margin-bottom: 16px; letter-spacing: -0.01em; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt {
+    background: var(--white); border: 1px solid var(--line); border-radius: 10px;
+    padding: 15px 18px; text-align: left; font-family: inherit; font-size: 15px;
+    cursor: pointer; color: var(--ink); line-height: 1.5;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: #c9c9c7; }
+  .quiz-opt.correct { border-color: var(--green-ink); background: var(--green-soft); }
+  .quiz-opt.wrong { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt:disabled { cursor: default; }
+
+  .feedback { border-radius: 10px; padding: 16px 20px; margin-top: 14px; font-size: 14.5px; display: none; line-height: 1.55; }
+  .feedback.ok { background: var(--green-soft); color: var(--green-ink); border: 1px solid #cfe3cd; display: block; }
+  .feedback.bad { background: var(--accent-soft); color: var(--accent); border: 1px solid #f3d4d3; display: block; }
+  .feedback b { font-weight: 600; }
+
+  /* ===== builder ===== */
+  .builder { display: flex; flex-direction: column; gap: 14px; }
+  .slot { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 24px; }
+  .slot-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .slot-num { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .slot-title { font-weight: 600; font-size: 15px; color: var(--ink-strong); letter-spacing: -0.01em; }
+  .slot-hint { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 1px solid var(--line); background: var(--white); border-radius: 6px;
+    padding: 8px 14px; font-size: 13.5px; font-family: inherit; cursor: pointer; color: var(--ink);
+    transition: border-color .15s, background .15s, color .15s;
+  }
+  .chip:hover { border-color: #c9c9c7; }
+  .chip.on { border-color: var(--ink-strong); background: var(--ink-strong); color: #fff; }
+  .slot input[type="text"] {
+    width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px;
+    font-size: 14.5px; font-family: inherit; color: var(--ink-strong); background: var(--white);
+  }
+  .slot input[type="text"]:focus { outline: none; border-color: var(--ink-strong); }
+  .slot input::placeholder { color: #b5b5b3; }
+
+  .preview-block { margin-top: 24px; }
+  .preview-label { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .preview {
+    background: var(--white); border: 1px solid var(--line); border-left: 2px solid var(--ink-strong);
+    border-radius: 10px; padding: 20px 24px; font-size: 15.5px; line-height: 1.65; color: var(--ink-strong);
+    min-height: 76px;
+  }
+  .preview .ph { color: #b5b5b3; font-style: italic; }
+
+  /* ===== czerwona lista ===== */
+  .redrows { display: flex; flex-direction: column; gap: 8px; }
+  .redrow {
+    display: flex; align-items: center; gap: 16px; text-align: left; width: 100%;
+    border: 1px solid var(--line); border-radius: 10px; padding: 15px 20px;
+    cursor: pointer; transition: border-color .15s, background .15s; background: var(--white);
+    font-family: inherit;
+  }
+  .redrow:hover { border-color: #c9c9c7; }
+  .redrow.danger { border-color: var(--accent); background: var(--accent-soft); }
+  .redrow .mark {
+    width: 20px; height: 20px; border-radius: 5px; border: 1px solid #d8d8d6;
+    display: grid; place-items: center; flex-shrink: 0;
+    font-family: var(--mono); font-size: 12px; color: transparent; transition: all .15s;
+  }
+  .redrow.danger .mark { border-color: var(--accent); color: var(--accent); }
+  .redrow .mark::after { content: '×'; }
+  .redrow.danger .mark::after { content: '×'; }
+  .redrow .rt { font-size: 15px; color: var(--ink-strong); }
+  .redrow .rt small { display: block; color: var(--muted); font-size: 13px; margin-top: 1px; }
+
+  /* ===== diploma ===== */
+  .diploma { text-align: left; }
+  .diploma h1 { margin-bottom: 10px; }
+  .diploma .sub { color: var(--muted); font-size: 17px; margin-bottom: 36px; max-width: 50ch; }
+  .cheatsheet { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 28px 32px; margin-bottom: 28px; }
+  .cheatsheet h3 { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+  .cs-row { display: grid; grid-template-columns: 140px 1fr; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line); font-size: 15px; }
+  .cs-row:first-of-type { border-top: none; padding-top: 0; }
+  .cs-row .k { font-family: var(--mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+  .cs-row .v { color: var(--ink-strong); }
+  .cs-prompt {
+    margin-top: 6px; background: var(--canvas); border: 1px solid var(--line); border-left: 2px solid var(--ink-strong);
+    border-radius: 8px; padding: 14px 18px; font-size: 14.5px; line-height: 1.6;
+  }
+
+  @media (max-width: 640px) {
+    .choices { grid-template-columns: 1fr; }
+    .screen-wrap { padding: 44px 18px 72px; }
+    .cs-row { grid-template-columns: 1fr; gap: 4px; }
+    .brand { display: none; }
+  }
+  @media print {
+    .topbar, .actions { display: none; }
+    .screen-wrap { display: block !important; padding: 0; }
+    .cheatsheet { border: 1px solid #ccc; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <button class="back" id="btnBack" aria-label="Wstecz">←</button>
+    <span class="brand">AI bez strachu · nauka przez robienie</span>
+    <div class="track" id="track"></div>
+    <span class="step-count" id="stepCount"></span>
+  </div>
+</div>
+
+<!-- EKRAN 1: CEL -->
+<div class="screen-wrap active" data-s="1">
+  <div class="kicker">Krok 01 / 06</div>
+  <h1>Czego chcesz się najpierw nauczyć?</h1>
+  <p class="lead">To początek drogi, nie wybór na całe życie. Zmienisz zdanie w każdej chwili.</p>
+  <div class="choices">
+    <button class="choice" data-goal="zycie">
+      <span class="idx">A</span>
+      <div class="t">Życie codzienne</div>
+      <div class="d">Maile, pisma z urzędu, plany, listy — sprawy, które zjadają wieczory.</div>
+    </button>
+    <button class="choice" data-goal="praca">
+      <span class="idx">B</span>
+      <div class="t">Praca i biuro</div>
+      <div class="d">Tabele, raporty, streszczenia spotkań — godziny pracy wracają do Ciebie.</div>
+    </button>
+    <button class="choice" data-goal="nauka">
+      <span class="idx">C</span>
+      <div class="t">Nauka i rozumienie</div>
+      <div class="d">Trudne teksty prostym językiem, research bez dwudziestu kart w przeglądarce.</div>
+    </button>
+    <button class="choice" data-goal="kreatywnie">
+      <span class="idx">D</span>
+      <div class="t">Projekty kreatywne</div>
+      <div class="d">Pomysły, teksty, plany wydarzeń — coś, czego nie ma w żadnym szablonie.</div>
+    </button>
+  </div>
+  <div class="actions">
+    <button class="cta" id="cta1" disabled>Dalej</button>
+    <span class="hint-key">wybierz jedną opcję, potem <kbd>Enter</kbd></span>
+  </div>
+</div>
+
+<!-- EKRAN 2: ASYSTENT -->
+<div class="screen-wrap" data-s="2">
+  <div class="kicker">Krok 02 / 06</div>
+  <h1>Z kim chcesz pracować?</h1>
+  <p class="lead">Każdy z nich odpowiada po polsku, działa w przeglądarce i jest darmowy na start. Umiejętności, których się nauczysz, przenosisz wszędzie.</p>
+  <div class="choices">
+    <button class="choice" data-assistant="ChatGPT">
+      <span class="idx">chatgpt.com</span>
+      <div class="t">ChatGPT</div>
+      <div class="d">Najpopularniejszy. Najłatwiej znaleźć pomoc, gdy utkniesz.</div>
+    </button>
+    <button class="choice" data-assistant="Claude">
+      <span class="idx">claude.ai</span>
+      <div class="t">Claude</div>
+      <div class="d">Spokojny, staranny ton. Dobry do dłuższych tekstów i dokumentów.</div>
+    </button>
+    <button class="choice" data-assistant="Kimi">
+      <span class="idx">kimi.com</span>
+      <div class="t">Kimi</div>
+      <div class="d">Bardzo dobrze rozumie polski. Darmowy start bez zobowiązań.</div>
+    </button>
+    <button class="choice" data-assistant="Gemini">
+      <span class="idx">gemini.google.com</span>
+      <div class="t">Gemini</div>
+      <div class="d">Od Google. Naturalny wybór, jeśli masz już konto Google.</div>
+    </button>
+  </div>
+  <div class="actions">
+    <button class="cta" id="cta2" disabled>Dalej</button>
+    <span class="hint-key">ceny i limity się zmieniają — zacznij od darmowego planu</span>
+  </div>
+</div>
+
+<!-- EKRAN 3: LEKCJA 1 -->
+<div class="screen-wrap" data-s="3">
+  <div class="kicker">Lekcja 01 — jak pisać</div>
+  <h1>Porozmawiaj jak z człowiekiem</h1>
+  <div class="note">
+    Asystent czyta szybko, ale nie zna Twojego kontekstu. Im dokładniej powiesz
+    <b>kim jesteś, co chcesz i dla kogo piszesz</b> — tym mniej poprawek po drodze.
+  </div>
+  <div class="duo">
+    <div class="prompt-box bad"><span class="label">Za mało</span>„Napisz maila”</div>
+    <div class="prompt-box good"><span class="label">Wystarczająco</span>„Napisz krótki, grzeczny mail do przychodni — umówię wizytę kontrolną w przyszłym tygodniu. Maksymalnie pięć zdań, po polsku, prosto.”</div>
+  </div>
+  <p class="quiz-q">Który prompt da lepszy wynik — i dlaczego?</p>
+  <div class="quiz-opts">
+    <button class="quiz-opt" data-ok="0">Pierwszy — krótszy znaczy lepszy, asystent się domyśli</button>
+    <button class="quiz-opt" data-ok="1">Drugi — mówi co zrobić, dla kogo i w jakiej formie</button>
+    <button class="quiz-opt" data-ok="0">Oba jednakowo — to kwestia szczęścia</button>
+  </div>
+  <div class="feedback" id="fb1"></div>
+  <div class="actions"><button class="cta" id="cta3" disabled>Dalej</button></div>
+</div>
+
+<!-- EKRAN 4: LEKCJA 2 — BUILDER -->
+<div class="screen-wrap" data-s="4">
+  <div class="kicker">Lekcja 02 — budowa promptu</div>
+  <h1>Złóż swój pierwszy prompt</h1>
+  <p class="lead">Wybierz po jednym elemencie z każdej sekcji. Poniżej zobaczysz gotowy wynik — to Twój prompt na start.</p>
+  <div class="builder">
+    <div class="slot">
+      <div class="slot-head"><span class="slot-num">01</span><span class="slot-title">Rola asystenta</span></div>
+      <div class="slot-hint">Ustawia ton i rodzaj wiedzy, z której korzysta</div>
+      <div class="chips" data-slot="rola">
+        <button class="chip">Jesteś asystentem do korespondencji</button>
+        <button class="chip">Jesteś doradcą ds. planowania</button>
+        <button class="chip">Tłumaczysz wszystko na prosty język</button>
+      </div>
+    </div>
+    <div class="slot">
+      <div class="slot-head"><span class="slot-num">02</span><span class="slot-title">Zadanie</span></div>
+      <div class="slot-hint">Jedno konkretne zadanie — nie pięć naraz</div>
+      <div class="chips" data-slot="zadanie">
+        <button class="chip">napisz krótki, grzeczny mail do przychodni</button>
+        <button class="chip">streść ten tekst w pięciu punktach prostym językiem</button>
+        <button class="chip">ułóż plan weekendu dla dwóch osób</button>
+      </div>
+    </div>
+    <div class="slot">
+      <div class="slot-head"><span class="slot-num">03</span><span class="slot-title">Kontekst</span></div>
+      <div class="slot-hint">Opcjonalne, ale znacząco poprawia wynik</div>
+      <input type="text" id="bKontekst" placeholder="np. nie znam się na medycynie, piszę pierwszy raz">
+    </div>
+    <div class="slot">
+      <div class="slot-head"><span class="slot-num">04</span><span class="slot-title">Forma</span></div>
+      <div class="slot-hint">Długość i styl odpowiedzi</div>
+      <div class="chips" data-slot="forma">
+        <button class="chip">maksymalnie pięć zdań, po polsku, prosto</button>
+        <button class="chip">lista punktów do odhaczenia</button>
+        <button class="chip">wyjaśnij jak dwunastolatkowi, bez angielskich skrótów</button>
+      </div>
+    </div>
+  </div>
+  <div class="preview-block">
+    <div class="preview-label">Twój prompt — na żywo</div>
+    <div class="preview" id="preview"></div>
+  </div>
+  <div class="actions"><button class="cta" id="cta4" disabled>Dalej — mam mój prompt</button></div>
+</div>
+
+<!-- EKRAN 5: LEKCJA 3 — BEZPIECZEŃSTWO -->
+<div class="screen-wrap" data-s="5">
+  <div class="kicker">Lekcja 03 — bezpieczeństwo</div>
+  <h1>Czego nigdy nie wklejasz?</h1>
+  <p class="lead">Czat to nie sejf. Zaznacz wszystko, czego nie wolno wysyłać asystentowi. Ćwiczenie sprawdza się samo.</p>
+  <div class="redrows">
+    <button class="redrow" data-safe="nie"><span class="mark"></span><span class="rt">Hasło do banku i kody SMS<small>nigdy, żadnemu asystentowi — zasada numer jeden</small></span></button>
+    <button class="redrow" data-safe="nie"><span class="mark"></span><span class="rt">PESEL i numer dowodu<small>zamiast tego pisz: „osoba pięćdziesięcioletnia”</small></span></button>
+    <button class="redrow" data-safe="nie"><span class="mark"></span><span class="rt">Numer karty płatniczej<small>nigdy — w żadnym celu</small></span></button>
+    <button class="redrow" data-safe="ok"><span class="mark"></span><span class="rt">Treść maila, na który chcesz odpisać<small>to jest w porządku — po to tu jesteś</small></span></button>
+    <button class="redrow" data-safe="nie"><span class="mark"></span><span class="rt">Dokument medyczny z nazwiskiem i diagnozą<small>uogólniaj: „osoba pięćdziesięcioletnia, nadciśnienie”</small></span></button>
+    <button class="redrow" data-safe="ok"><span class="mark"></span><span class="rt">Przepis na rosół, który chcesz przerobić<small>spokojnie — to tylko zupa</small></span></button>
+  </div>
+  <div class="feedback" id="fb5"></div>
+  <div class="actions"><button class="cta" id="cta5" disabled>Dalej</button></div>
+</div>
+
+<!-- EKRAN 6: PODSUMOWANIE -->
+<div class="screen-wrap" data-s="6">
+  <div class="diploma">
+    <div class="kicker">Gotowe</div>
+    <h1>Masz wszystko, co potrzebne na pierwszą rozmowę</h1>
+    <p class="sub">Cel, asystent i własny prompt. Dziesięć minut praktyki — i asystent pracuje dla Ciebie.</p>
+    <div class="cheatsheet" id="cheatsheet"></div>
+    <div class="actions">
+      <button class="cta" onclick="window.print()">Wydrukuj ściągawkę</button>
+      <span class="hint-key">albo zrób zdjęcie tego ekranu</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const TOTAL = 6;
+  let cur = 1;
+  const state = { goal: null, assistant: null, rola: null, zadanie: null, forma: null, kontekst: '' };
+
+  const $  = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+
+  function render() {
+    $$('.screen-wrap').forEach(w => w.classList.toggle('active', +w.dataset.s === cur));
+    const track = $('#track');
+    track.innerHTML = '';
+    for (let i = 1; i < TOTAL; i++) {
+      const seg = document.createElement('div');
+      seg.className = 'seg' + (i < cur ? ' done' : '');
+      track.appendChild(seg);
+    }
+    $('#stepCount').textContent = cur < TOTAL ? String(cur).padStart(2, '0') + ' / 0' + (TOTAL - 1) : 'koniec';
+    $('#btnBack').classList.toggle('show', cur > 1 && cur < TOTAL);
+    window.scrollTo({ top: 0 });
+  }
+  function next() {
+    cur = Math.min(TOTAL, cur + 1);
+    render();
+    if (cur === 4) updatePreview();
+    if (cur === 6) renderDiploma();
+  }
+  function prev() { if (cur > 1) { cur--; render(); } }
+
+  /* wybór kart */
+  $$('.screen-wrap[data-s="1"] .choice').forEach(b => b.addEventListener('click', () => {
+    $$('.screen-wrap[data-s="1"] .choice').forEach(x => x.classList.remove('selected'));
+    b.classList.add('selected');
+    state.goal = b.dataset.goal;
+    $('#cta1').disabled = false;
+  }));
+  $$('.screen-wrap[data-s="2"] .choice').forEach(b => b.addEventListener('click', () => {
+    $$('.screen-wrap[data-s="2"] .choice').forEach(x => x.classList.remove('selected'));
+    b.classList.add('selected');
+    state.assistant = b.dataset.assistant;
+    $('#cta2').disabled = false;
+  }));
+
+  /* quiz */
+  $$('[data-s="3"] .quiz-opt').forEach(b => b.addEventListener('click', () => {
+    $$('[data-s="3"] .quiz-opt').forEach(o => { o.disabled = true; if (o.dataset.ok === '1') o.classList.add('correct'); });
+    if (b.dataset.ok !== '1') b.classList.add('wrong');
+    const fb = $('#fb1');
+    fb.className = 'feedback ' + (b.dataset.ok === '1' ? 'ok' : 'bad');
+    fb.innerHTML = b.dataset.ok === '1'
+      ? '<b>Dokładnie.</b> Asystent zna tylko to, co mu powiesz. Zadanie plus kontekst plus forma — to cały sekret dobrego wyniku.'
+      : '<b>Prawie.</b> Asystent się „domyśli”, ale zgadywanie kosztuje czas na poprawki. Zaznaczona odpowiedź pokazuje pełny wzór.';
+    $('#cta3').disabled = false;
+  }));
+
+  /* builder */
+  $$('.chips').forEach(group => {
+    group.querySelectorAll('.chip').forEach(chip => chip.addEventListener('click', () => {
+      group.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+      chip.classList.add('on');
+      state[group.dataset.slot] = chip.textContent.trim();
+      updatePreview();
+    }));
+  });
+  $('#bKontekst').addEventListener('input', e => { state.kontekst = e.target.value.trim(); updatePreview(); });
+
+  function updatePreview() {
+    const ph = txt => '<span class="ph">' + txt + '</span>';
+    const parts = [];
+    parts.push(state.rola || ph('rola asystenta'));
+    parts.push(state.zadanie || ph('zadanie'));
+    if (state.kontekst) parts.push('Kontekst: ' + state.kontekst + '.');
+    parts.push(state.forma ? state.forma.charAt(0).toUpperCase() + state.forma.slice(1) + '.' : ph('forma'));
+    $('#preview').innerHTML = parts.join('. ').replace(/\.\./g, '.');
+    $('#cta4').disabled = !(state.rola && state.zadanie && state.forma);
+  }
+
+  /* czerwona lista */
+  $$('.redrow').forEach(row => row.addEventListener('click', () => {
+    row.classList.toggle('danger');
+    checkSafety();
+  }));
+  function checkSafety() {
+    const rows = $$('.redrow');
+    const picked = rows.filter(r => r.classList.contains('danger'));
+    const fb = $('#fb5');
+    if (picked.length === 0) { fb.className = 'feedback'; $('#cta5').disabled = true; return; }
+    const want = rows.filter(r => r.dataset.safe === 'nie');
+    const allRight = picked.length === want.length && want.every(r => r.classList.contains('danger'));
+    if (allRight) {
+      fb.className = 'feedback ok';
+      fb.innerHTML = '<b>Idealnie — cztery z czterech.</b> Te dwie pozostałe rzeczy spokojnie możesz wklejać. Ta lista zostaje z Tobą przed każdym wysłaniem.';
+      $('#cta5').disabled = false;
+    } else {
+      fb.className = 'feedback bad';
+      fb.innerHTML = '<b>Jeszcze raz.</b> Albo zaznaczyłeś coś bezpiecznego (mail, przepis), albo pominąłeś coś wrażliwego: hasło, PESEL, kartę, dokument medyczny z nazwiskiem.';
+      $('#cta5').disabled = true;
+    }
+  }
+
+  /* ściąga */
+  function renderDiploma() {
+    const goals = { zycie: 'życie codzienne', praca: 'praca i biuro', nauka: 'nauka i rozumienie', kreatywnie: 'projekty kreatywne' };
+    const prompt = [
+      state.rola || 'Jesteś moim asystentem',
+      state.zadanie || 'wykonaj moje zadanie',
+      state.kontekst ? 'Kontekst: ' + state.kontekst + '.' : '',
+      state.forma ? state.forma.charAt(0).toUpperCase() + state.forma.slice(1) + '.' : ''
+    ].filter(Boolean).join('. ');
+    $('#cheatsheet').innerHTML = `
+      <h3>Ściąga — zapisz sobie</h3>
+      <div class="cs-row"><span class="k">Cel</span><span class="v">${goals[state.goal] || '—'}</span></div>
+      <div class="cs-row"><span class="k">Asystent</span><span class="v">${state.assistant || '—'} — konto na jego stronie, darmowy plan na start</span></div>
+      <div class="cs-row"><span class="k">Mój prompt</span><span class="v"><div class="cs-prompt">${prompt}</div></span></div>
+      <div class="cs-row"><span class="k">Nigdy nie wklejaj</span><span class="v">hasła, PESEL, numeru karty, dokumentu medycznego z nazwiskiem</span></div>
+      <div class="cs-row"><span class="k">Zawsze czytaj</span><span class="v">wynik przed wysłaniem — pod Twoim nazwiskiem wychodzi to, co wyślesz</span></div>`;
+  }
+
+  /* CTA + klawiatura */
+  [1,2,3,4,5].forEach(n => $('#cta' + n).addEventListener('click', next));
+  $('#btnBack').addEventListener('click', prev);
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'Enter' && !$('#cta' + cur)?.disabled) next();
+    if (e.key === 'Backspace' && cur > 1) { e.preventDefault(); prev(); }
+  });
+
+  render();
+</script>
+<script>
+  fetch('assets/grain.html').then(r=>r.text()).then(t=>{
+    const d=document.createElement('div'); d.innerHTML=t; document.body.appendChild(d);
+  });
+</script>
+</body>
+</html>
