@@ -1,45 +1,48 @@
-# AI bez strachu — biblioteka kursów
+# OSNOWA EDU — biblioteka kursów AI
 
-> Kursy AI zbudowane na badaniach, nie na hype'ie. Dwa tory: **AI bez strachu** (40+, pierwsze kroki z AI) i **AI 20+** (20–35, z czatu do workflow).
+> System edukacji AI zbudowany na badaniach: poziomy = **kompetencje** (triage wykonaniowy), wiek = **opakowanie** (tempo, przykłady, wsparcie). Trzy poziomy: **START → HORIZON → FLOW**.
 
-**Status:** w budowie — materiały wchodzą na żywo, wersjonowane. Feedback przez Issues.
+**Start:** wypełnij [TRIAGE-v2](./TRIAGE-v2.md) (10–15 min, zadania wykonawcze) → dostaniesz rekomendację poziomu → wejdź w swój folder.
 
-## Co znajdziesz
+## Poziomy
+
+| Poziom | Dla kogo | Co osiągniesz |
+|---|---|---|
+| **[START](./start/)** | AI = zero lub jedna próba | pierwsze bezpieczne użycie: konto, pytanie, mail, nawyk |
+| **[HORIZON](./horizon/)** | używam AI, ale powierzchownie | świadome użycie: formuła, weryfikacja, granice |
+| **[FLOW](./flow/)** | projektuję własne workflow | powtarzalne procesy + transfer na firmę/pracę |
+
+## Struktura
 
 ```
-FILOZOFIA-EDUKACJI.md      ← dlaczego kursy są takie, jakie są (5 zasad + progresja)
-40-plus/                   ← tor „AI bez strachu"
-  SCENARIUSZ-S1.md           sesja 1 słowo w słowo (dla prowadzących/ewolucji)
-  PLAN-KURSU.md              6 modułów, kolejność, rytm, kryteria
-  asystent-instrukcja.md     MD do wklejenia w dowolny czat — asystent mówi głosem kursu
-  sciaga-A4/                 ściągawka 2 strony A4 do druku (otwórz index.html → Drukuj)
-  MOM-TEST-PLAYBOOK.md       metoda rozmów walidacyjnych (dla ciekawych)
-20-plus/                   ← tor „AI 20+"
-  SYLABUS.md                 4 moduły: mapa → workflow → załoga → granice
-  audyt-startowy-T0.md       zadanie onboardingowe: 20 Twoich zapytań sklasyfikowanych
-wspolne/                   ← narzędzia dla obu torów
-  3-check-weryfikacja.md     jak sprawdzić wynik AI (źródła/liczby/logika)
-  czerwona-lista.md          co nigdy nie idzie do AI (+ protokół przerwania)
-  jesli-to-plan.md           plan nawyku (implementation intentions)
+TRIAGE-v2.md               ← zacznij tutaj: 3 pytania + 2 zadania → poziom
+FILOZOFIA-EDUKACJI.md      ← 5 zasad + progresja (dlaczego tak uczymy)
+SYSTEM-EDU.md              ← architektura: macierz grup × poziomy, pula modułów
+start/                     ← START: pełny kurs (scenariusze, ściąga, instrukcja asystenta)
+horizon/                   ← HORIZON: sylabus, audyt startowy, instrukcja asystenta
+flow/                      ← FLOW: instrukcja asystenta (workflow, dokumentacja)
+wspolne/                   ← 3-check · czerwona lista · JEŚLI-TO (dla wszystkich)
+strona/                    ← strona onboardingowa + kreator
 ```
 
-## Jak używać
+## Narzędzia wspólne (każdy poziom)
 
-1. **Ściąga A4** — wydrukuj (index.html → Drukuj), powieś przy monitorze.
-2. **Instrukcja asystenta** — skopiuj treść, wklej na początku rozmowy z dowolnym AI. Działa w ChatGPT, Claude, Gemini, Kimi.
-3. **Narzędzia wspólne** — protokół weryfikacji, czerwona lista, plan nawyku: pliki do druku lub telefonu.
-4. **Materiały merytoryczne** — każde twierdzenie w kursie ma znacznik `[M##]`; pełna rozpiska źródeł wchodzi z fazą 5.
+- **[3-check](./wspolne/3-check-weryfikacja.md)** — źródła / liczby / logika; P0 (prawo/zdrowie/pieniądze) = 100% weryfikacji
+- **[Czerwona lista](./wspolne/czerwona-lista.md)** — „wkleiłbym to obcej osobie w mailu?" + protokół przerwania
+- **[JEŚLI→TO](./wspolne/jesli-to-plan.md)** — plan nawyku (implementation intentions)
 
 ## Zasady
 
-- Polski, sentence case, zero żargonu — pliki są dla użytkowników.
-- Pliki wersjonowane — każda zmiana ma historię. Feedback: Issues.
-- Read-only dla uczestników; pull requesty po zaprowadzeniu.
+- **Poziom dobiera triage wykonaniowy** (zadania, nie deklaracje) — wiek tylko opakowuje.
+- Każdy moduł kończy się **artefaktem** (prompt/checklista/workflow) — nie „wiedzą w głowie".
+- **Transfer po 7 dniach** na nowym przykładzie — miara sukcesu, nie quiz.
+- Zero liczb bez źródła; pełna rozpiska w materiałach merytorycznych (faza 5).
+- Feedback: Issues (anonimizowany) — zasilają cotygodniowy raport ulepszeń.
 
 ## Licencja
 
-Materiały edukacyjne do użytku osobistego. Użycie komercyjne — kontakt.
+Użycie osobiste — tak. Komercyjne — kontakt.
 
 ---
 
-*Prowadzący: [MJ.OLDAK](https://mjoldak.pl) · ostatnia aktualizacja: 2026-09-02*
+*Prowadzący: [MJ.OLDAK](https://mjoldak.pl) · system potwierdzony badaniami (DR 02.09: H1 prior knowledge > wiek) · 2026*
